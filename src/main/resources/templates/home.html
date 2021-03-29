@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head th:replace="common/header :: common-header" />
 
 <body>
 <!-- Static navbar -->
 <div th:replace="common/header :: navbar"/>
-
+<div sec:authorize="isAuthenticated">
+    Welcome <b><span sec:authentication="name"> Username</span></b>
+    &nbsp;
+    <span sec:authentication="principal.authorities"> Roles </span>
+</div>
 
 <div th:replace="common/header :: body-bottom-scripts" />
 </body>
