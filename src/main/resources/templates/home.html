@@ -5,7 +5,7 @@
 <body>
 <!-- Static navbar -->
 <div th:replace="common/header :: navbar"/>
-<div sec:authorize="isAuthenticated">
+<div sec:authorize="hasRole('ROLE_ADMIN')">
     Welcome <b><span sec:authentication="name"> Username</span></b>
     &nbsp;
     <span sec:authentication="principal.authorities"> Roles </span>

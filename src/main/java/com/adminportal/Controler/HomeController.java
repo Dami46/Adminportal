@@ -17,6 +17,11 @@ public class HomeController {
         return "home";
     }
 
+    @RequestMapping("/recharges")
+    public String recharges() {
+        return "recharges";
+    }
+
 
     @RequestMapping("/login")
     public String login() {
