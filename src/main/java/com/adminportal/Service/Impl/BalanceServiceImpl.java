@@ -3,6 +3,7 @@ package com.adminportal.Service.Impl;
 import com.adminportal.Domain.BalanceRequest;
 import com.adminportal.Domain.User;
 import com.adminportal.Repository.BalanceRepository;
+import com.adminportal.Repository.UserRepository;
 import com.adminportal.Service.BalanceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,8 +23,8 @@ public class BalanceServiceImpl implements BalanceService {
     }
 
     @Override
-    public Optional<BalanceRequest> findById(Long id) {
-         return balanceRepository.findById(id);
+    public BalanceRequest findById(Long id) {
+        return balanceRepository.findById(id).orElse(null);
     }
 
     @Override
@@ -40,5 +41,10 @@ public class BalanceServiceImpl implements BalanceService {
 
         balanceRepository.save(balanceRequest1);
         return balanceRequest1;
+    }
+
+    @Override
+    public void removeOne(Long id) {
+        balanceRepository.deleteById(id);
     }
 }

@@ -30,8 +30,59 @@ $(document).ready(function() {
 		});
 	});
 
+    $('.delete-request').on('click', function (){
+        /*<![CDATA[*/
+        var path = /*[[@{/}]]*/'removeRequest';
+        /*]]>*/
 
+        var id=$(this).attr('id');
 
+        bootbox.confirm({
+            message: "Are you sure to remove this request? It can't be undone.",
+            buttons: {
+                cancel: {
+                    label:'<i class="fa fa-times"></i> Cancel'
+                },
+                confirm: {
+                    label:'<i class="fa fa-check"></i> Confirm'
+                }
+            },
+            callback: function(confirmed) {
+                if(confirmed) {
+                    $.post(path, {'id':id}, function(res) {
+                        location.reload();
+                    });
+                }
+            }
+        });
+    });
+
+    $('.accept-request').on('click', function (){
+        /*<![CDATA[*/
+        var path = /*[[@{/}]]*/'submitRequest';
+        /*]]>*/
+
+        var id=$(this).attr('id');
+
+        bootbox.confirm({
+            message: "Are you sure to accept this request? It can't be undone.",
+            buttons: {
+                cancel: {
+                    label:'<i class="fa fa-times"></i> Cancel'
+                },
+                confirm: {
+                    label:'<i class="fa fa-check"></i> Confirm'
+                }
+            },
+            callback: function(confirmed) {
+                if(confirmed) {
+                    $.post(path, {'id':id}, function(res) {
+                        location.reload();
+                    });
+                }
+            }
+        });
+    });
 //	$('.checkboxBook').click(function () {
 //        var id = $(this).attr('id');
 //        if(this.checked){
