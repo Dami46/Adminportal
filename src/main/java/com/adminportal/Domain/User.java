@@ -28,10 +28,20 @@ public class User implements UserDetails {
     private String phone;
     private boolean enabled = true;
     @Column(columnDefinition = "DOUBLE default 100.00", updatable = true)
-    private double balance ;
+    private double balance;
+
+    @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
+    private ShoppingCart shoppingCart;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private List<BalanceRequest> balanceRequestList;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<UserShipping> userShippingList;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private List<UserPayment> userPaymentList;
+
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JsonIgnore
@@ -151,5 +161,29 @@ public class User implements UserDetails {
 
     public void setBalanceRequestList(List<BalanceRequest> balanceRequestList) {
         this.balanceRequestList = balanceRequestList;
+    }
+
+    public List<UserShipping> getUserShippingList() {
+        return userShippingList;
+    }
+
+    public void setUserShippingList(List<UserShipping> userShippingList) {
+        this.userShippingList = userShippingList;
+    }
+
+    public List<UserPayment> getUserPaymentList() {
+        return userPaymentList;
+    }
+
+    public void setUserPaymentList(List<UserPayment> userPaymentList) {
+        this.userPaymentList = userPaymentList;
+    }
+
+    public ShoppingCart getShoppingCart() {
+        return shoppingCart;
+    }
+
+    public void setShoppingCart(ShoppingCart shoppingCart) {
+        this.shoppingCart = shoppingCart;
     }
 }
