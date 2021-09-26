@@ -75,8 +75,7 @@
                             <option value="Classics" th:selcted="(${book.category}=='Classics')">Classics</option>
                             <option value="Action " th:selcted="(${book.category}=='Action')">Action</option>
                             <option value="Adventure " th:selcted="(${book.category}=='Adventure')">Adventure</option>
-                            <option value="Programming " th:selcted="(${book.category}=='Programming')">Programming
-                            </option>
+                            <option value="Programming " th:selcted="(${book.category}=='Programming')">Programming</option>
                         </select>
                     </div>
                 </div>
@@ -132,10 +131,10 @@
                 <div class="form-group">
                     <label class="col-md-2 control-label" for="status">Status</label>
                     <div class="col-md-8">
-                        <label><input name="active" checked="checked" type="radio"
+                        <label><input name="active" th:checked="${book.active}" type="radio"
                                       value="true"/> Active </label>
                         <label><input name="active"  type="radio"
-                                      value="false"/> Inactive </label>
+                                      value="false"  th:checked="${!book.active}"/> Inactive </label>
                         <span class="help-block"> Whether the book is active or not </span>
                     </div>
                 </div>
