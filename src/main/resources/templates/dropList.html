@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:replace="common/header :: common-header"/>
+
+<body>
+<!-- Static navbar -->
+<div th:replace="common/header :: navbar"/>
+<div class="container">
+    <div class="table-responsive">
+            <table id="dropsTable" class="table table-bordered table-hover table-striped">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Signings Start Date</th>
+                    <th>Roll Date</th>
+                    <th>Book</th>
+                    <th>Quantity</th>
+                    <th>Number of users in queue</th>
+                    <th>Operation</th>
+                </tr>
+                </thead>
+                <tbody>
+                    <tr data-th-each="drop: ${itemToDropList}">
+                        <td>
+                            <input hidden="hidden" name="id" th:value="${drop.id}" />
+                            <input th:id="'selected'+${drop.id}" class="checkboxdrop" type="checkbox" />
+                        </td>
+                        <td th:text="${drop.signingDate}"></td>
+                        <td th:text="${drop.rollDate}"></td>
+                        <td th:text="${drop.book.title}"></td>
+                        <td th:text="${drop.book.inStockNumber}"></td>
+                        <td th:text="${drop.userToDropList.size}"></td>
+                        <td>
+                            <input hidden="hidden" name="id" th:value="${drop.id}" />
+                            <button th:if="${drop.wasStarted != true}"  th:id="'onedrop-'+${drop.id}" class="btn btn-success btn-xs accept-drop"
+                                    type="submit" value="accept">
+                                <span class="fa fa-times"></span> Accept
+                            </button>
+                            <button th:if="${drop.wasRolled != true && drop.wasStarted == true}"  th:id="'onedrop-'+${drop.id}" class="btn btn-success btn-xs roll-drop"
+                                    type="submit" value="accept">
+                                <span class="fa fa-times"></span> Roll
+                            </button>
+                            <button th:id="'onedrop-'+${drop.id}" class="btn btn-danger btn-xs delete-drop" type="submit" value="delete" >
+                                <span class="fa fa-times"></span> Delete </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+    </div>
+</div>
+</div>
+
+<div th:replace="common/header :: body-bottom-scripts"/>
+<script>
+    $(document).ready(function () {
+        $('#dropsTable').DataTable({
+            stateSave: true
+        });
+    });
+</script>
+</body>
+</html>

@@ -2,9 +2,7 @@ package com.adminportal.Controler;
 
 import com.adminportal.Domain.Book;
 import com.adminportal.Service.BookService;
-import com.sun.org.apache.xpath.internal.operations.Mod;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -88,7 +86,7 @@ public class BookController {
                 e.printStackTrace();
             }
         }
-        return "redirect:/book/bookInfo?id=" +book.getId();
+        return "redirect:/book/bookInfo?id=" + book.getId();
     }
 
     @RequestMapping("/bookList")
@@ -98,7 +96,7 @@ public class BookController {
         return "bookList";
     }
 
-    @RequestMapping(value="/remove", method=RequestMethod.POST)
+    @RequestMapping(value = "/remove", method = RequestMethod.POST)
     public String remove(
             @ModelAttribute("id") String id, Model model
     ) {

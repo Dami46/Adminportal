@@ -1,6 +1,8 @@
 package com.adminportal.Domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
@@ -34,6 +36,9 @@ public class Book {
     @JsonIgnore
     private List<BookToCartItem> bookToCartItemList;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    private DropItem dropItem;
+    private boolean bookToDrop=false;
 
     public Long getId() {
         return id;
@@ -153,5 +158,21 @@ public class Book {
 
     public void setBookToCartItemList(List<BookToCartItem> bookToCartItemList) {
         this.bookToCartItemList = bookToCartItemList;
+    }
+
+    public DropItem getDrop() {
+        return dropItem;
+    }
+
+    public void setDrop(DropItem dropItem) {
+        this.dropItem = dropItem;
+    }
+
+    public boolean isBookToDrop() {
+        return bookToDrop;
+    }
+
+    public void setBookToDrop(boolean bookToDrop) {
+        this.bookToDrop = bookToDrop;
     }
 }

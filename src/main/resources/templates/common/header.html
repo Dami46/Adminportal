@@ -49,6 +49,12 @@
                         </ul>
                     </li>
                     <li><a th:href="@{/recharges}">Recharges</a></li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Drops <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a th:href="@{/drop/add}">Add a drop</a></li>
+                            <li><a th:href="@{/drop/dropList}">View drop list</a></li>
+                        </ul>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
                     <li><a th:href="@{/logout}">Sign out</a></li>

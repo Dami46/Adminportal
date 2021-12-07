@@ -5,10 +5,12 @@
 <body>
 <!-- Static navbar -->
 <div th:replace="common/header :: navbar"/>
-<div sec:authorize="hasRole('ROLE_ADMIN')">
+<div>
     Welcome <b><span sec:authentication="name"> Username</span></b>
     &nbsp;
     <span sec:authentication="principal.authorities"> Roles </span>
+
+    <div>Its page for admins to allow them page managing </div>
 </div>
 
 <div th:replace="common/header :: body-bottom-scripts" />

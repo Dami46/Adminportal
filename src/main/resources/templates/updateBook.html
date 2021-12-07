@@ -140,6 +140,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label class="col-md-2 control-label" for="bookToDrop">Add item to drop</label>
+                    <div class="col-md-8">
+                        <label><input name="bookToDrop" th:checked="${book.bookToDrop}" type="radio"
+                                      value="true"/> Yes </label>
+                        <label><input name="bookToDrop"  type="radio"
+                                      value="false"  th:checked="${!book.bookToDrop}"/> No </label>
+                        <span class="help-block"> Whether the book is active or not </span>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
                     <label class="col-md-2 control-label" for="description">Description</label>
                     <div class="col-md-8">
                     <textarea name="description" rows="5" class="form-control" id="description"

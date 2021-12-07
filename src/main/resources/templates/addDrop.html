@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="common/header :: common-header"/>
+
+<body>
+<!-- Static navbar -->
+<div th:replace="common/header :: navbar"/>
+
+<div class="container">
+    <div class="row">
+        <form class="form-horizontal" th:action="@{/drop/add}" method="post" enctype="multipart/form-data">
+            <fieldset>
+                <legend class="center-block"> New drop information <span
+                        style="font-size: small">* is a required field</span></legend>
+
+                <div class="form-group">
+                    <label class="col-md-2 control-label" for="dropTitle">Drop Title</label>
+                    <div class="col-md-8">
+                        <input name="dropTitle" type="text" class="form-control" id="dropTitle"
+                               th:value="${dropItem.dropTitle}"
+                               placeholder="dropTitle" required/>
+                        <span class="help-block"> * Here you can write title for this drop </span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-md-2 control-label" for="signingDate">* Start of drop's signs up</label>
+                    <div class="col-md-8">
+                        <input type="datetime-local" id="signingDate" name="signingDate"
+                               value="${todayDate}" th:value="${dropItem.signingDate}"
+                               min="2021-11-28T00:00" max="2022-12-31T00:00" required="required">
+                        <span class="help-block"> Date when users can register for drop</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-md-2 control-label" for="rollDate">* Roll Date</label>
+                    <div class="col-md-8">
+                        <input type="datetime-local" id="rollDate" name="rollDate"
+                               value="${todayDate}" th:value="${dropItem.rollDate}"
+                               min="2021-11-28T00:00" max="2022-12-31T00:00" required="required">
+                        <span class="help-block"> Date when drop roll </span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="col-md-2 control-label" for="bookId">* Book for drop</label>
+                    <div class="col-md-8">
+                        <select id="bookId" class="form-control" name="bookId" required>
+                            <option value="" selected="selected" disabled="disabled">Please select an option...</option>
+                            <option th:each="book : ${books}" th:value="${book.id}" th:text="${book.title}"></option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-8">
+                        <button type="submit" class="btn btn-success"> Add drop</button>
+                        <a class="btn btn-danger" th:href="@{/}"> Cancel</a>
+                    </div>
+                </div>
+
+            </fieldset>
+        </form>
+    </div>
+</div>
+
+
+<div th:replace="common/header :: body-bottom-scripts"/>
+</body>
+</html>
