@@ -10,7 +10,8 @@
             <table id="dropsTable" class="table table-bordered table-hover table-striped">
                 <thead>
                 <tr>
-                    <th>ID</th>
+                    <th></th>
+                    <th>DropName</th>
                     <th>Signings Start Date</th>
                     <th>Roll Date</th>
                     <th>Book</th>
@@ -25,6 +26,7 @@
                             <input hidden="hidden" name="id" th:value="${drop.id}" />
                             <input th:id="'selected'+${drop.id}" class="checkboxdrop" type="checkbox" />
                         </td>
+                        <td th:text="${drop.dropTitle}"></td>
                         <td th:text="${drop.signingDate}"></td>
                         <td th:text="${drop.rollDate}"></td>
                         <td th:text="${drop.book.title}"></td>

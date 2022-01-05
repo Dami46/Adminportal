@@ -2,11 +2,17 @@ package com.adminportal.Controler;
 
 import com.adminportal.Domain.Book;
 import com.adminportal.Domain.DropItem;
+import com.adminportal.Domain.User;
 import com.adminportal.Domain.UserToDrop;
+import com.adminportal.Dto.RollDropDto;
 import com.adminportal.Service.BookService;
 import com.adminportal.Service.DropService;
+import com.adminportal.Service.UserService;
 import com.adminportal.Utility.MailConstructor;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
@@ -16,13 +22,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/drop")
@@ -39,6 +48,11 @@ public class DropController {
 
     @Autowired
     private MailConstructor mailConstructor;
+
+    @Autowired
+    private UserService userService;
+
+    private static ObjectMapper objectMapper = new ObjectMapper();
 
     @RequestMapping("/dropList")
     public String dropList(Model model) {
@@ -104,8 +118,29 @@ public class DropController {
         return "redirect:/dropList";
     }
 
+    @RequestMapping(value = "/startDrop", method = RequestMethod.POST)
+    public String timerStartDrop(HttpServletRequest request) throws IOException {
+
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+
+        RollDropDto rollDropDto = objectMapper.readValue(requestBody, RollDropDto.class);
+
+        Optional<DropItem> optionalDropItem = dropService.findById(Long.valueOf(rollDropDto.getDropId()));
+
+        if (optionalDropItem.isPresent()) {
+            DropItem dropItem = optionalDropItem.get();
+            dropItem.setWasStarted(true);
+            dropItem.setSigningDate(new Date().toString());
+
+            dropService.save(dropItem);
+
+        }
+
+        return "redirect:/dropList";
+    }
+
     @RequestMapping(value = "/roll", method = RequestMethod.POST)
-    public String rollDrop(@ModelAttribute("id") String id, HttpServletRequest request,
+    public ResponseEntity<?> rollDrop(@ModelAttribute("id") String id, HttpServletRequest request,
                            Model model) {
 
         Optional<DropItem> optionalDropItem = dropService.findById(Long.parseLong(id.substring(8)));
@@ -117,14 +152,60 @@ public class DropController {
 
             dropService.save(dropItem);
 
-            for (UserToDrop user : dropItem.getUserToDropList()) {
-                SimpleMailMessage email = mailConstructor.constructAcceptBalanceRequestEmail(request.getLocale(), user.getUser());
+            for (UserToDrop userToDrop : dropItem.getUserToDropList()) {
+                //TODO sprawdzanie czy ma wystarczająco kasy i sprawdzanie czy każdy kto dołaczyl wygrał (ilosc ludzi do ksiązek w dropie)
+                //TODO ustawianie dropu co pół godziny i dodać nowy wygląd emaila jak ma za mało kasy i jak się uda
+                User user = userToDrop.getUser();
+
+                if (user.getBalance() < Objects.requireNonNull(dropItem.getBook()).getOurPrice()) {
+                    model.addAttribute("insufficientUserBalance", true);
+                } else {
+                    model.addAttribute("insufficientUserBalance", false);
+                }
+                user.setBalance(Math.round((user.getBalance() - dropItem.getBook().getOurPrice()) * 100.0) / 100.0);
+                userService.save(user);
+
+                SimpleMailMessage email = mailConstructor.constructAcceptBalanceRequestEmail(request.getLocale(), userToDrop.getUser());
                 mailSender.send(email);
             }
         }
 
         model.addAttribute("emailSent", "true");
-        return "redirect:/dropList";
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/rollDrop", method = RequestMethod.POST)
+    public ResponseEntity<?> timerRollDrop(HttpServletRequest request,
+                                           Model model) throws IOException {
+
+        String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
+
+        RollDropDto rollDropDto = objectMapper.readValue(requestBody, RollDropDto.class);
+
+        Optional<DropItem> optionalDropItem = dropService.findById(Long.valueOf(rollDropDto.getDropId()));
+
+        if (optionalDropItem.isPresent()) {
+            DropItem dropItem = optionalDropItem.get();
+            dropItem.setWasRolled(true);
+            dropItem.setRollDate(new Date().toString());
+
+            dropService.save(dropItem);
+
+            for (UserToDrop userToDrop : dropItem.getUserToDropList()) {
+                //TODO sprawdzanie czy ma wystarczająco kasy i sprawdzanie czy każdy kto dołaczyl wygrał (ilosc ludzi do ksiązek w dropie)
+                //TODO ustawianie dropu co pół godziny i dodać nowy wygląd emaila jak ma za mało kasy i jak się uda
+                User user = userToDrop.getUser();
+
+                user.setBalance(Math.round((user.getBalance() - dropItem.getBook().getOurPrice()) * 100.0) / 100.0);
+                userService.save(user);
+
+                SimpleMailMessage email = mailConstructor.constructAcceptBalanceRequestEmail(request.getLocale(), userToDrop.getUser());
+                mailSender.send(email);
+            }
+        }
+
+        model.addAttribute("emailSent", "true");
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/removeDrop", method = RequestMethod.POST)
