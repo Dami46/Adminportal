@@ -12,20 +12,52 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.*;
+import java.net.URISyntaxException;
+import java.security.InvalidKeyException;
 import java.util.List;
+import java.util.Properties;
+
+import com.microsoft.azure.storage.*;
+import com.microsoft.azure.storage.blob.*;
 
 @Controller
 @RequestMapping("/book")
 public class BookController {
+    CloudBlobContainer container;
 
     @Autowired
     private BookService bookService;
+
+    public BookController(){
+        try{
+            Properties prop = new Properties();
+            prop.load(new FileInputStream("config.properties"));
+
+            String storageConnectionString = prop.getProperty("storageConnectionString");
+
+            CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageConnectionString);
+            CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
+            container = blobClient.getContainerReference("books");
+        }
+        catch(IOException | StorageException | URISyntaxException | InvalidKeyException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void uploadBookImageToStorage(@ModelAttribute("book") Book book, MultipartFile bookImage) {
+        try {
+            byte[] bytes = bookImage.getBytes();
+            String name = book.getId() + ".png";
+
+            CloudBlockBlob blob = container.getBlockBlobReference(name);
+            InputStream dataStream = new ByteArrayInputStream(bytes);
+            blob.upload(dataStream, bytes.length);
+
+        } catch (IOException | StorageException | URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
 
     @RequestMapping(value = "/add", method = RequestMethod.GET)
     public String addBook(Model model) {
@@ -40,16 +72,7 @@ public class BookController {
         bookService.save(book);
         MultipartFile bookImage = book.getBookImage();
 
-        try {
-            byte[] bytes = bookImage.getBytes();
-            String name = book.getId() + ".png";
-            BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(new File("src/main/resources/static/image/book/" + name)));
-            stream.write(bytes);
-            stream.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        uploadBookImageToStorage(book, bookImage);
         return "redirect:bookList";
     }
 
@@ -74,17 +97,7 @@ public class BookController {
 
         MultipartFile bookImage = book.getBookImage();
         if (!bookImage.isEmpty()) {
-            try {
-                byte[] bytes = bookImage.getBytes();
-                String name = book.getId() + ".png";
-                Files.delete(Paths.get("src/main/resources/static/image/book/" + name));
-                BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(new File("src/main/resources/static/image/book/" + name)));
-                stream.write(bytes);
-                stream.close();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            uploadBookImageToStorage(book, bookImage);
         }
         return "redirect:/book/bookInfo?id=" + book.getId();
     }

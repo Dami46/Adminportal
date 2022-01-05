@@ -12,7 +12,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Entity
+@Entity(name="user_")
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -27,7 +27,7 @@ public class User implements UserDetails {
     private String email;
     private String phone;
     private boolean enabled = true;
-    @Column(columnDefinition = "DOUBLE default 100.00", updatable = true)
+    @Column(columnDefinition = "FLOAT default 100.00", updatable = true)
     private double balance;
 
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "user")
