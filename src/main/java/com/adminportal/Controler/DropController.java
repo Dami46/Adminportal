@@ -101,8 +101,7 @@ public class DropController {
     }
 
     @RequestMapping(value = "/start", method = RequestMethod.POST)
-    public String startDrop(@ModelAttribute("id") String id, HttpServletRequest request,
-                            Model model) {
+    public String startDrop(@ModelAttribute("id") String id) {
 
         Optional<DropItem> optionalDropItem = dropService.findById(Long.parseLong(id.substring(8)));
 
@@ -112,14 +111,13 @@ public class DropController {
             dropItem.setSigningDate(new Date().toString());
 
             dropService.save(dropItem);
-
         }
 
-        return "redirect:/dropList";
+        return "forward:/dropList";
     }
 
     @RequestMapping(value = "/startDrop", method = RequestMethod.POST)
-    public String timerStartDrop(HttpServletRequest request) throws IOException {
+    public ResponseEntity<?> timerStartDrop(HttpServletRequest request) throws IOException {
 
         String requestBody = request.getReader().lines().collect(Collectors.joining(System.lineSeparator()));
 
@@ -136,12 +134,12 @@ public class DropController {
 
         }
 
-        return "redirect:/dropList";
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "/roll", method = RequestMethod.POST)
-    public ResponseEntity<?> rollDrop(@ModelAttribute("id") String id, HttpServletRequest request,
-                           Model model) {
+    public String  rollDrop(@ModelAttribute("id") String id, HttpServletRequest request,
+                                      Model model) {
 
         Optional<DropItem> optionalDropItem = dropService.findById(Long.parseLong(id.substring(8)));
 
@@ -152,26 +150,30 @@ public class DropController {
 
             dropService.save(dropItem);
 
+            int bookCounter = dropItem.getBook().getInStockNumber();
+
             for (UserToDrop userToDrop : dropItem.getUserToDropList()) {
-                //TODO sprawdzanie czy ma wystarczająco kasy i sprawdzanie czy każdy kto dołaczyl wygrał (ilosc ludzi do ksiązek w dropie)
-                //TODO ustawianie dropu co pół godziny i dodać nowy wygląd emaila jak ma za mało kasy i jak się uda
                 User user = userToDrop.getUser();
 
-                if (user.getBalance() < Objects.requireNonNull(dropItem.getBook()).getOurPrice()) {
+                if (user.getBalance() < Objects.requireNonNull(dropItem.getBook()).getOurPrice() || bookCounter == 0) {
                     model.addAttribute("insufficientUserBalance", true);
+
+                    mailSender.send(mailConstructor.constructDropLoserEmail(userToDrop.getUser(), dropItem));
+
                 } else {
                     model.addAttribute("insufficientUserBalance", false);
-                }
-                user.setBalance(Math.round((user.getBalance() - dropItem.getBook().getOurPrice()) * 100.0) / 100.0);
-                userService.save(user);
 
-                SimpleMailMessage email = mailConstructor.constructAcceptBalanceRequestEmail(request.getLocale(), userToDrop.getUser());
-                mailSender.send(email);
+                    user.setBalance(Math.round((user.getBalance() - dropItem.getBook().getOurPrice()) * 100.0) / 100.0);
+                    userService.save(user);
+
+                    mailSender.send(mailConstructor.constructDropWinnerEmail(userToDrop.getUser(), dropItem));
+                    bookCounter = bookCounter - 1;
+                }
             }
         }
 
         model.addAttribute("emailSent", "true");
-        return new ResponseEntity<>(HttpStatus.OK);
+        return "forward:/dropList";
     }
 
     @RequestMapping(value = "/rollDrop", method = RequestMethod.POST)
@@ -191,16 +193,25 @@ public class DropController {
 
             dropService.save(dropItem);
 
+            int bookCounter = dropItem.getBook().getInStockNumber();
+
             for (UserToDrop userToDrop : dropItem.getUserToDropList()) {
-                //TODO sprawdzanie czy ma wystarczająco kasy i sprawdzanie czy każdy kto dołaczyl wygrał (ilosc ludzi do ksiązek w dropie)
-                //TODO ustawianie dropu co pół godziny i dodać nowy wygląd emaila jak ma za mało kasy i jak się uda
                 User user = userToDrop.getUser();
 
-                user.setBalance(Math.round((user.getBalance() - dropItem.getBook().getOurPrice()) * 100.0) / 100.0);
-                userService.save(user);
+                if (user.getBalance() < Objects.requireNonNull(dropItem.getBook()).getOurPrice() || bookCounter == 0) {
+                    model.addAttribute("insufficientUserBalance", true);
 
-                SimpleMailMessage email = mailConstructor.constructAcceptBalanceRequestEmail(request.getLocale(), userToDrop.getUser());
-                mailSender.send(email);
+                    mailSender.send(mailConstructor.constructDropLoserEmail(userToDrop.getUser(), dropItem));
+
+                } else {
+                    model.addAttribute("insufficientUserBalance", false);
+
+                    user.setBalance(Math.round((user.getBalance() - dropItem.getBook().getOurPrice()) * 100.0) / 100.0);
+                    userService.save(user);
+
+                    mailSender.send(mailConstructor.constructDropWinnerEmail(userToDrop.getUser(), dropItem));
+                    bookCounter = bookCounter - 1;
+                }
             }
         }
 
@@ -213,7 +224,7 @@ public class DropController {
             @ModelAttribute("id") String id, Model model
     ) {
         dropService.removeOne(Long.parseLong(id.substring(8)));
-        return "redirect:/dropList";
+        return "forward:/dropList";
     }
 
 }

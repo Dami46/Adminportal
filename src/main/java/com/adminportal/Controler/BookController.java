@@ -2,6 +2,11 @@ package com.adminportal.Controler;
 
 import com.adminportal.Domain.Book;
 import com.adminportal.Service.BookService;
+import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.StorageException;
+import com.microsoft.azure.storage.blob.CloudBlobClient;
+import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudBlockBlob;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,25 +17,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.util.List;
 import java.util.Properties;
 
-import com.microsoft.azure.storage.*;
-import com.microsoft.azure.storage.blob.*;
-
 @Controller
 @RequestMapping("/book")
 public class BookController {
+
     CloudBlobContainer container;
 
     @Autowired
     private BookService bookService;
 
-    public BookController(){
-        try{
+    public BookController() {
+        try {
             Properties prop = new Properties();
             prop.load(new FileInputStream("config.properties"));
 
@@ -39,8 +45,7 @@ public class BookController {
             CloudStorageAccount storageAccount = CloudStorageAccount.parse(storageConnectionString);
             CloudBlobClient blobClient = storageAccount.createCloudBlobClient();
             container = blobClient.getContainerReference("books");
-        }
-        catch(IOException | StorageException | URISyntaxException | InvalidKeyException e) {
+        } catch (IOException | StorageException | URISyntaxException | InvalidKeyException e) {
             e.printStackTrace();
         }
     }

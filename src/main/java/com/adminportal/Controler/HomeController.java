@@ -6,7 +6,6 @@ import com.adminportal.Service.BalanceService;
 import com.adminportal.Service.UserService;
 import com.adminportal.Utility.MailConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -69,11 +68,10 @@ public class HomeController {
         user.setBalance(user.getBalance() + balanceRequest.getSumToAdd());
         balanceService.removeOne(balanceRequest.getId());
 
-        SimpleMailMessage email = mailConstructor.constructAcceptBalanceRequestEmail(request.getLocale(), user);
-        mailSender.send(email);
+        mailSender.send(mailConstructor.constructAcceptBalanceRequestEmail(user));
 
         model.addAttribute("emailSent", "true");
-        return "redirect:/recharges";
+        return "forward:/recharges";
     }
 
     @RequestMapping(value = "/removeRequest", method = RequestMethod.POST)
@@ -84,12 +82,11 @@ public class HomeController {
         List<BalanceRequest> requestList = balanceService.findAll();
         User user = balanceRequest.getUser();
 
-        SimpleMailMessage email = mailConstructor.constructRejectBalanceRequestEmail(request.getLocale(), user);
-        mailSender.send(email);
+        mailSender.send(mailConstructor.constructRejectBalanceRequestEmail(user));
 
         model.addAttribute("emailSent", "true");
         model.addAttribute("requestList", requestList);
-        return "redirect:/recharges";
+        return "forward:/recharges";
     }
 
 }
