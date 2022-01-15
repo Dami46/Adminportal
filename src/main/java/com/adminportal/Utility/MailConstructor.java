@@ -34,7 +34,7 @@ public class MailConstructor {
             public void prepare(MimeMessage mimeMessage) throws Exception {
                 MimeMessageHelper email = new MimeMessageHelper(mimeMessage, true);
                 email.setTo(user.getEmail());
-                email.setSubject("Online Store - Balance");
+                email.setSubject("Dropki.pl - Balance");
                 email.setText(text, true);
                 email.setFrom(new InternetAddress(Objects.requireNonNull(env.getProperty("support.email"))));
             }
@@ -53,7 +53,7 @@ public class MailConstructor {
             public void prepare(MimeMessage mimeMessage) throws Exception {
                 MimeMessageHelper email = new MimeMessageHelper(mimeMessage, true);
                 email.setTo(user.getEmail());
-                email.setSubject("Online Store - Balance");
+                email.setSubject("Dropki.pl - Balance");
                 email.setText(text, true);
                 email.setFrom(new InternetAddress(Objects.requireNonNull(env.getProperty("support.email"))));
             }
