@@ -72,7 +72,11 @@ public class BookController {
     }
 
     @RequestMapping(value = "/add", method = RequestMethod.POST)
-    public String addBookPost(@ModelAttribute("book") Book book, HttpServletRequest request) {
+    public String addBookPost(@ModelAttribute("book") Book book) {
+
+        if(book.getListPrice() < book.getOurPrice()) {
+            book.setListPrice(0.0);
+        }
 
         bookService.save(book);
         MultipartFile bookImage = book.getBookImage();
@@ -97,7 +101,12 @@ public class BookController {
     }
 
     @RequestMapping(value = "/updateBook", method = RequestMethod.POST)
-    public String updateBookPost(@ModelAttribute("book") Book book, HttpServletRequest request) {
+    public String updateBookPost(@ModelAttribute("book") Book book) {
+
+        if(book.getListPrice() < book.getOurPrice()) {
+            book.setListPrice(0.0);
+        }
+
         bookService.save(book);
 
         MultipartFile bookImage = book.getBookImage();
